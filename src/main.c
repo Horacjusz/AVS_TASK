@@ -6,6 +6,7 @@
 #include "queue.h"
 #include "step.h"
 #include "log_writer.h"
+#include "common.h"
 
 int main(int argc, char *argv[]) {
     if (argc < 3) {
@@ -59,10 +60,14 @@ int main(int argc, char *argv[]) {
 
     write_log_to_json(log_queue, argv[2]);
 
-    free_queue_deep(main_queue);
-    free_queue_deep(log_queue);
-    free(commands);
-    free(content);
+    #ifdef EMBEDDED
+        reset_memory();
+    #else
+        free_queue_deep(main_queue);
+        free_queue_deep(log_queue);
+        free(commands);
+        free(content);
+    #endif
 
     return 0;
 }

@@ -3,6 +3,7 @@
 #include <string.h>
 #include "queue.h"
 #include "vehicle.h"
+#include "common.h"
 
 Queue *create_queue(const char *id, ObjectType type) {
     Queue *q = malloc(sizeof(Queue));

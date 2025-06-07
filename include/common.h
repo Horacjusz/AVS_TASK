@@ -8,6 +8,12 @@
 #define min(a, b) ((a) < (b) ? (a) : (b))
 #define max(a, b) ((a) > (b) ? (a) : (b))
 
+#ifdef EMBEDDED
+#include "embedded.h"
+#endif
+
+extern const char *directions[];
+
 typedef enum ObjectType {
     TYPE_UNKNOWN,
     TYPE_VEHICLE,

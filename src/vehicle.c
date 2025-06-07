@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "vehicle.h"
+#include "common.h"
 
 Vehicle *create_vehicle(const char *id, const char *target) {
     Vehicle *v = malloc(sizeof(Vehicle));

@@ -6,8 +6,10 @@ BINDIR = bin
 TARGET = $(BINDIR)/simulation
 
 SRC = $(wildcard $(SRCDIR)/*.c)
-
 OBJ = $(SRC:$(SRCDIR)/%.c=$(BINDIR)/%.o)
+
+EMBEDDED_SRC = $(SRCDIR)/embedded.c
+EMBEDDED_OBJ = $(BINDIR)/embedded.o
 
 all: $(TARGET)
 
@@ -19,7 +21,12 @@ $(BINDIR)/%.o: $(SRCDIR)/%.c
 	@mkdir -p $(BINDIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
+embedded: CFLAGS += -DEMBEDDED
+embedded: $(filter-out $(EMBEDDED_OBJ), $(OBJ)) $(EMBEDDED_OBJ)
+	@mkdir -p $(BINDIR)
+	$(CC) $(CFLAGS) -o $(TARGET) $^
+
 clean:
 	rm -rf $(BINDIR)
 
-.PHONY: all clean
+.PHONY: all clean embedded

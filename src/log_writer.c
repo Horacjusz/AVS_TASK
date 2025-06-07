@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "vehicle.h"
 #include "queue.h"
+#include "common.h"
 
 void write_log_to_json(Queue *log_queue, const char *output_path) {
     FILE *fp = fopen(output_path, "w");

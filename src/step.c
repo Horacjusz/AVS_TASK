@@ -7,7 +7,6 @@
 #include <string.h>
 
 int direction_val(const char *direction) {
-    const char *directions[] = PREDEFINED_DIRECTIONS;
     for (int i = 0; i < DIRECTIONS_SIZE; i++) {
         if (strcmp(direction, directions[i]) == 0) {
             return i * 2;
@@ -90,7 +89,4 @@ void step(Queue *main_queue, Queue *log_queue) {
             ready_queues[i]->counter = 0;
         }
     }
-
-    printf("[STEP] executed, vehicles released:\n");
-    print_queue(left);
 }
