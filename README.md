@@ -185,7 +185,7 @@ The brute-force bitmask evaluation scales with the number of active queues (O(2^
 ## Worth noting
 
 - Entirety of project is easily portable to most embedded platforms, due to built-in mockups of most of the problematic embedded functions
-- Program is flexible enough to allow any number of roads, as long as they're specified in file `common.h`
+- Program is scalable to allow any number of roads, as long as they're specified in file `common.h`
 - Also all vehicles are able to turn on their roads to go back from where they came.
 
 ---

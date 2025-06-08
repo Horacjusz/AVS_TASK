@@ -23,13 +23,6 @@ void tell_lights(int lights) {
     }
 }
 
-void print_n_bits(int number, int n) {
-    for (int i = n - 1; i >= 0; i--) {
-        printf("%d", (number >> i) & 1);
-    }
-    printf("\n");
-}
-
 int main(int argc, char *argv[]) {
     if (argc < 3) {
         printf("Usage: %s input.json output.json\n", argv[0]);
@@ -81,13 +74,9 @@ int main(int argc, char *argv[]) {
             free(end_road);
         }
 
-        printf("\n\n\n");
-        print_n_bits(lights, DIRECTIONS_SIZE + 1);
-        printf("Prev mask marker: %d\n", (lights >> (DIRECTIONS_SIZE)) & 1);
         lights = compute_best_mask(main_queue, lights);
         #ifdef DEBUG
-            printf("Command: %s\n", cmd);
-            print_n_bits(lights, DIRECTIONS_SIZE + 1);
+            printf("\nCommand: %s\n", cmd);
             tell_lights(lights);
         #endif
 
