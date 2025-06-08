@@ -1,11 +1,14 @@
-// embedded.h
 #ifndef EMBEDDED_H
 #define EMBEDDED_H
+
+#ifdef EMBEDDED
 
 #include <stddef.h>
 #include <stdio.h>
 
-// Nadpisania przez #define
+// Redefine standard library functions to embedded versions
+// These macros ensure that any use of standard functions in the code
+// will instead invoke the embedded-safe mock implementations
 #define malloc(size)         __embedded_malloc(size)
 #define realloc(ptr, size)   __embedded_realloc(ptr, size)
 #define free(ptr)            __embedded_free(ptr)
@@ -52,4 +55,6 @@ void *__embedded_memcpy(void *dest, const void *src, size_t n);
 void *__embedded_memmove(void *dest, const void *src, size_t n);
 void __embedded_exit(int status);
 
-#endif // EMBEDDED_H
+#endif
+
+#endif

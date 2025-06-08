@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "queue.h"
-#include "vehicle.h"
-#include "common.h"
+#include "../include/queue.h"
+#include "../include/vehicle.h"
+#include "../include/common.h"
 
+// Creates a new queue with given ID and type
 Queue *create_queue(const char *id, ObjectType type) {
     Queue *q = malloc(sizeof(Queue));
     q->type = type;
@@ -16,6 +17,7 @@ Queue *create_queue(const char *id, ObjectType type) {
     return q;
 }
 
+// Adds a new node with given data to the end of the queue
 void enqueue(Queue *queue, void *data) {
 
     QueueNode *node = malloc(sizeof(QueueNode));
@@ -32,6 +34,7 @@ void enqueue(Queue *queue, void *data) {
     queue->length++;
 }
 
+// Removes and returns the front element from the queue
 void *dequeue(Queue *queue) {
     if (!queue->head) return NULL;
 
@@ -46,6 +49,7 @@ void *dequeue(Queue *queue) {
     return data;
 }
 
+// Frees all elements of a queue using the provided data-freeing function
 void free_queue(Queue *queue, void (*free_func)(void *)) {
     QueueNode *curr = queue->head;
     while (curr) {
@@ -57,6 +61,7 @@ void free_queue(Queue *queue, void (*free_func)(void *)) {
     free(queue);
 }
 
+// Finds a queue with the given ID in a linked list of queues
 Queue *find_queue(Queue *list, const char *id) {
     while (list) {
         if (strncmp(list->id, id, MAX_ID_LENGTH) == 0) return list;
@@ -65,6 +70,7 @@ Queue *find_queue(Queue *list, const char *id) {
     return NULL;
 }
 
+// Finds a queue with the given ID nested inside a queue container
 Queue *find_queue_in_queue(Queue *container, const char *id) {
     QueueNode *curr = container->head;
     while (curr) {
@@ -77,7 +83,7 @@ Queue *find_queue_in_queue(Queue *container, const char *id) {
     return NULL;
 }
 
-
+// Adds a queue to the list if it does not already exist; returns the (new or existing) queue
 Queue *add_queue_if_missing(Queue **list, const char *id, ObjectType type) {
     Queue *existing = find_queue(*list, id);
     if (existing) return existing;
@@ -88,6 +94,7 @@ Queue *add_queue_if_missing(Queue **list, const char *id, ObjectType type) {
     return new_q;
 }
 
+// Converts the queue into a string representation (recursively for nested queues)
 char *get_queue_string(void *q) {
     Queue *queue = (Queue *)q;
 
@@ -127,6 +134,7 @@ char *get_queue_string(void *q) {
         curr = curr->next;
     }
     
+    // Remove trailing comma and space
     size_t len = strlen(buffer);
     if (len >= 3 && buffer[len - 2] == ',' && buffer[len - 1] == ' ') {
         buffer[len - 2] = '\0';
@@ -144,14 +152,14 @@ char *get_queue_string(void *q) {
 }
 
 
-
+// Prints the string representation of a queue to stdout
 void print_queue(const Queue *queue) {
     char *content = get_queue_string((void *)queue);
     printf("%s\n", content);
     free(content);
 }
 
-
+// Recursively frees a queue and all its nested data based on type
 void free_queue_deep(Queue *queue) {
     QueueNode *curr = queue->head;
     while (curr) {
@@ -162,6 +170,8 @@ void free_queue_deep(Queue *queue) {
                 free_queue_deep((Queue *)curr->data);
             } else if (type == TYPE_VEHICLE) {
                 free_vehicle(curr->data);
+            } else {
+                free(curr->data);  // Free string data
             }
         }
         free(curr);

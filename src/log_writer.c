@@ -1,8 +1,15 @@
 #include <stdio.h>
-#include "vehicle.h"
-#include "queue.h"
-#include "common.h"
+#include "../include/vehicle.h"
+#include "../include/queue.h"
+#include "../include/common.h"
 
+// Saves the log of vehicle movements to a JSON file.
+// {
+//   "stepStatuses": [
+//     { "leftVehicles": ["vehicle1", "vehicle2"] },
+//     ...
+//   ]
+// }
 void write_log_to_json(Queue *log_queue, const char *output_path) {
     FILE *fp = fopen(output_path, "w");
     if (!fp) {
@@ -13,24 +20,30 @@ void write_log_to_json(Queue *log_queue, const char *output_path) {
     fprintf(fp, "{\n  \"stepStatuses\": [\n");
 
     QueueNode *step_node = log_queue->head;
-    int step_index = 0;
 
     while (step_node) {
-        Queue *left = (Queue *)step_node->data;
+        Queue *left = (Queue *)step_node->data; // Each step contains a queue of vehicles that left
 
-        fprintf(fp, "    {\n      \"leftVehicles\": [\n");
+        fprintf(fp, "    {\n      \"leftVehicles\": [");
 
-        QueueNode *veh_node = left->head;
-        int vehicle_count = 0;
-        while (veh_node) {
-            Vehicle *v = (Vehicle *)veh_node->data;
-            fprintf(fp, "        \"%s\"%s\n", v->vehicle_id, veh_node->next ? "," : "");
-            veh_node = veh_node->next;
-            vehicle_count++;
+        if (left->length == 0) {
+            // Compact empty array
+            fprintf(fp, "]\n");
+        } else {
+            // Non-empty array with indented items
+            fprintf(fp, "\n");
+
+            QueueNode *veh_node = left->head; // Iterate over vehicles in the current step
+            while (veh_node) {
+                Vehicle *v = (Vehicle *)veh_node->data;
+                fprintf(fp, "        \"%s\"%s\n", v->vehicle_id, veh_node->next ? "," : "");
+                veh_node = veh_node->next;
+            }
+
+            fprintf(fp, "      ]\n");
         }
 
-        fprintf(fp, "      ]\n    }");
-
+        fprintf(fp, "    }");
 
         if (step_node->next) {
             fprintf(fp, ",\n");
@@ -39,10 +52,9 @@ void write_log_to_json(Queue *log_queue, const char *output_path) {
         }
 
         step_node = step_node->next;
-        step_index++;
     }
 
     fprintf(fp, "  ]\n}\n");
-
     fclose(fp);
 }
+

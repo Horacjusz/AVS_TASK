@@ -1,11 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "common.h"
+#include "../include/queue.h"
+#include "../include/common.h"
+
+#define MAX_COMMANDS 100
 
 long input_length = 0;
 int command_count = 0;
 
+// Reads the entire content of a file into memory
 char *read_file(const char *filename) {
     FILE *file = fopen(filename, "r");
     if (!file) {
@@ -30,7 +34,8 @@ char *read_file(const char *filename) {
     return buffer;
 }
 
-char **split_commands(const char *json) {
+// Splits the input JSON into individual command strings
+Queue *split_commands(const char *json) {
     const char *ptr = strstr(json, "\"commands\"");
     if (!ptr) {
         printf("No commands found.\n");
@@ -41,11 +46,8 @@ char **split_commands(const char *json) {
     if (!ptr) return NULL;
     ptr++;
 
-    char **commands = malloc(sizeof(char *) * 100);
-    if (!commands) {
-        perror("Memory allocation failed");
-        exit(1);
-    }
+    // Initializes a queue to hold extracted command objects
+    Queue *commands_queue = create_queue("commands", TYPE_STRING);
 
     while (*ptr && *ptr != ']') {
         if (*ptr == '{') {
@@ -53,6 +55,7 @@ char **split_commands(const char *json) {
             int brace_count = 1;
             ptr++;
 
+            // Finds the matching closing brace for each JSON object
             while (*ptr && brace_count > 0) {
                 if (*ptr == '{') brace_count++;
                 if (*ptr == '}') brace_count--;
@@ -61,9 +64,6 @@ char **split_commands(const char *json) {
 
             if (brace_count == 0) {
                 int len = ptr - start;
-
-
-
                 char *raw = malloc(len + 1);
                 if (!raw) {
                     perror("Memory allocation failed");
@@ -72,6 +72,7 @@ char **split_commands(const char *json) {
                 strncpy(raw, start, len);
                 raw[len] = '\0';
 
+                // Cleans the command string from unnecessary whitespace
                 char *cleaned = malloc(len + 1);
                 if (!cleaned) {
                     perror("Memory allocation failed");
@@ -89,10 +90,10 @@ char **split_commands(const char *json) {
                     } else if (c == '}') {
                         in_braces--;
                         continue;
-                    } else if (c == ' ') {
+                    } else if (c == ' ' || c == '\n' || c == '\t') {
                         continue;
                     }
-                    
+
                     if (c == ',' && raw[i + 1] == '\n') {
                         continue;
                     }
@@ -106,19 +107,21 @@ char **split_commands(const char *json) {
                 }
 
                 free(raw);
-                commands[command_count++] = cleaned;
 
-
+                // Adds the cleaned command to the queue
+                enqueue(commands_queue, cleaned);
             }
         } else {
             ptr++;
         }
     }
-    return commands;
+
+    return commands_queue;
 }
 
+// Extracts a string value for a given key from a JSON-like command string
 char *extract_json_field(const char *cmd, const char *key) {
-    char pattern[64];
+    char pattern[MAX_ID_LENGTH + 10];
     snprintf(pattern, sizeof(pattern), "\"%s\":\"", key);
     char *start = strstr(cmd, pattern);
     if (!start) return NULL;

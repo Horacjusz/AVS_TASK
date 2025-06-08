@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "vehicle.h"
-#include "common.h"
+#include "../include/vehicle.h"
+#include "../include/common.h"
 
+// Creates a new vehicle object with given ID and destination
 Vehicle *create_vehicle(const char *id, const char *target) {
     Vehicle *v = malloc(sizeof(Vehicle));
     v->type = TYPE_VEHICLE;
@@ -12,6 +13,7 @@ Vehicle *create_vehicle(const char *id, const char *target) {
     return v;
 }
 
+// Generates a string representation of the vehicle (ID and target road)
 char *get_vehicle_string(void *v) {
     Vehicle *veh = (Vehicle *)v;
 
@@ -26,12 +28,14 @@ char *get_vehicle_string(void *v) {
     return buffer;
 }
 
+// Prints vehicle's string representation to stdout
 void print_vehicle(void *v) {
     char *vehicle_str = get_vehicle_string(v);
     printf("%s\n", vehicle_str);
     free(vehicle_str);
 }
 
+// Frees memory allocated for a vehicle object
 void free_vehicle(void *v) {
     free(v);
 }
