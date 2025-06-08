@@ -49,7 +49,7 @@ void test_step_basic() {
     enqueue(main_queue, north);
     enqueue(main_queue, south);
 
-    int mask = compute_best_mask(main_queue);
+    int mask = compute_best_mask(main_queue, 0);
 
     current_test_success = mask == 5;
 
