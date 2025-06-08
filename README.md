@@ -35,7 +35,6 @@ The bitmask used for determining active green/yellow roads follows this format:
 - Lower bits (0–N−1): represent individual roads, where 1 means the road is allowed to move.
 - Final bit (N): represents whether this is a `step` command.
 
-```text
 Example (5-bit system for 4 roads):
   Bit 0: north
   Bit 1: east
@@ -131,6 +130,8 @@ Or manually:
 ```bash
 ./bin/simulation input.json output.json
 ```
+
+The `-s` flag is used to suppress Makefile command output, resulting in a cleaner terminal view.
 
 ---
 
