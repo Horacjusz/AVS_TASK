@@ -18,6 +18,18 @@
       "leftVehicles": [
         "vehicle4"
       ]
+    },
+    {
+      "leftVehicles": [
+        "vehicle5",
+        "vehicle6"
+      ]
+    },
+    {
+      "leftVehicles": []
+    },
+    {
+      "leftVehicles": []
     }
   ]
 }

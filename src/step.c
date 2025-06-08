@@ -26,13 +26,13 @@ bool are_colliding(Queue *q1, Queue *q2) {
     end1++;
     end2++;
 
-    return (start1 == start2 || end1 == end2 ||
+    return  ((start1 == start2) || (end1 == end2) ||
             ((min(start1, end1) < min(start2, end2)) && (min(start2, end2) < max(start1, end1)) && (max(start1, end1) < max(start2, end2))) ||
             ((min(start2, end2) < min(start1, end1)) && (min(start1, end1) < max(start2, end2)) && (max(start2, end2) < max(start1, end1))));
 }
 
 // Returns bitmask for green lights (each bit = 1 means queue can move)
-int compute_best_mask(Queue *main_queue) {
+int compute_best_mask(Queue *main_queue, int prev_mask) {
     if (!main_queue) return 0;
 
     Queue *ready_queues[128];
@@ -86,7 +86,13 @@ int compute_best_mask(Queue *main_queue) {
         }
     }
     
-    int new_mask = 0;
+    // int new_mask = 0;
+    // if (prev_mask >= (1 << DIRECTIONS_SIZE)) {
+    //     new_mask += (1 << DIRECTIONS_SIZE);
+    // };
+
+    int new_mask = prev_mask & (1 << DIRECTIONS_SIZE);
+
     for (int i = 0; i < ready_count; ++i) {
         if (best_mask & (1 << i)) {
             // Pobieramy ID kierunku np. "north"

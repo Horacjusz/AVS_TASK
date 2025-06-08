@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "../include/parser.h"
 #include "../include/vehicle.h"
 #include "../include/queue.h"
@@ -11,11 +12,22 @@
 void tell_lights(int lights) {
     for (int i = 0; i < DIRECTIONS_SIZE; i++) {
         if (lights & (1 << i)) {
-            printf("Direction %s: GREEN\n", directions[i]);
+            if (lights & (1 << DIRECTIONS_SIZE)) {
+                printf("Direction %s: GREEN\n", directions[i]);
+            } else {
+                printf("Direction %s: YELLOW\n", directions[i]);
+            }
         } else {
             printf("Direction %s: RED\n", directions[i]);
         }
     }
+}
+
+void print_n_bits(int number, int n) {
+    for (int i = n - 1; i >= 0; i--) {
+        printf("%d", (number >> i) & 1);
+    }
+    printf("\n");
 }
 
 int main(int argc, char *argv[]) {
@@ -23,7 +35,7 @@ int main(int argc, char *argv[]) {
         printf("Usage: %s input.json output.json\n", argv[0]);
         return 1;
     }
-
+    printf("Starting simulation. Showing commands, traffic lights and vehicles.\n");
     // Main queue holds traffic queues for each road
     Queue *main_queue = create_queue("main", TYPE_QUEUE);
     // Log queue stores queues of vehicles that left the intersection per step
@@ -39,12 +51,15 @@ int main(int argc, char *argv[]) {
     // Iterate over each parsed command
     while (curr) {
         char *cmd = (char *)curr->data;
+        lights |= (1 << DIRECTIONS_SIZE);
 
         // Handle addVehicle command
         if (strstr(cmd, "\"type\":\"addVehicle\"")) {
             char *vehicle_id = extract_json_field(cmd, "vehicleId");
             char *start_road = extract_json_field(cmd, "startRoad");
             char *end_road = extract_json_field(cmd, "endRoad");
+
+            lights &= ~(1 << DIRECTIONS_SIZE);
 
             if (vehicle_id && start_road && end_road) {
                 Vehicle *v = create_vehicle(vehicle_id, end_road);
@@ -64,27 +79,38 @@ int main(int argc, char *argv[]) {
             free(vehicle_id);
             free(start_road);
             free(end_road);
-        } else if (strstr(cmd, "\"type\":\"step\"")) { // Handle step command – process one simulation step
+        }
 
+        printf("\n\n\n");
+        print_n_bits(lights, DIRECTIONS_SIZE + 1);
+        printf("Prev mask marker: %d\n", (lights >> (DIRECTIONS_SIZE)) & 1);
+        lights = compute_best_mask(main_queue, lights);
+        #ifdef DEBUG
+            printf("Command: %s\n", cmd);
+            print_n_bits(lights, DIRECTIONS_SIZE + 1);
+            tell_lights(lights);
+        #endif
+
+        // Handle step command – process one simulation step
+        if (strstr(cmd, "\"type\":\"step\"")) {
             Queue *left = create_queue("left", TYPE_QUEUE);
             
             for (int i = 0; i < DIRECTIONS_SIZE; i++) {
                 if (lights & (1 << i)) {
                     Vehicle *v = (Vehicle *)dequeue(find_queue_in_queue(main_queue, directions[i]));
                     enqueue(left, v);
+
+                    #ifdef DEBUG
+                        printf("Vehicle %s went from %s to %s\n", v->vehicle_id, directions[i], v->target_road);
+                    #endif
                 }
             }
             enqueue(log_queue, left);
         }
-        lights = compute_best_mask(main_queue);
-        #ifdef DEBUG
-        printf("Command: %s\n", cmd);
-        tell_lights(lights);
-        printf("\n");
-        #endif
 
         curr = curr->next;
     }
+
 
     // Output the results to JSON
     write_log_to_json(log_queue, argv[2]);
