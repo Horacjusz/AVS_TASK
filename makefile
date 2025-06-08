@@ -19,7 +19,6 @@ TESTOBJ = $(TESTSRC:$(TESTDIR)/%.c=$(TESTBINDIR)/%.o)
 TESTMAIN = $(TESTDIR)/test_main.c
 TESTTARGET = $(TESTBINDIR)/test_main
 
-# -------------------- BUDOWANIE PROGRAMU --------------------
 
 all: $(TARGET)
 
@@ -36,7 +35,6 @@ embedded: $(filter-out $(EMBEDDED_OBJ), $(OBJ)) $(EMBEDDED_OBJ)
 	@mkdir -p $(BINDIR)
 	$(CC) $(CFLAGS) -o $(TARGET) $^
 
-# -------------------- URUCHAMIANIE --------------------
 
 run:
 	@if [ "$(word 2,$(MAKECMDGOALS))" = "" ] || [ "$(word 3,$(MAKECMDGOALS))" = "" ]; then \
@@ -54,14 +52,11 @@ run-embedded:
 	$(MAKE) embedded --no-print-directory && \
 	./$(TARGET) $(word 2,$(MAKECMDGOALS)) $(word 3,$(MAKECMDGOALS))
 
-# -------------------- TESTY --------------------
 
-# Kompiluj wszystkie *_test.c do .o
 $(TESTBINDIR)/%.o: $(TESTDIR)/%.c
 	@mkdir -p $(TESTBINDIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Kompiluj main_test
 $(TESTTARGET): $(TESTOBJ) $(TESTMAIN)
 	@mkdir -p $(TESTBINDIR)
 	$(CC) $(CFLAGS) -o $@ $^ $(OBJ_NO_MAIN)
@@ -72,12 +67,9 @@ test: all $(TESTTARGET)
 clean-test:
 	rm -rf $(TESTBINDIR)
 
-# -------------------- USUWANIE --------------------
 
 clean: clean-test
 	rm -rf $(BINDIR)
-
-# -------------------- UKRYWANIE BŁĘDNYCH CELÓW --------------------
 
 .PHONY: all clean clean-test embedded run run-embedded test
 
