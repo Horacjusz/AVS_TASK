@@ -24,7 +24,10 @@ This project simulates an intelligent traffic light control system for an inters
   - **No path conflicts** (i.e., vehicles do not intersect).
 - Bitmasks are used to represent which roads are currently allowed to move.
 - Light states are updated **immediately after any command**, including adding vehicles.
-- If road is marked as good to go, but current command is not `step`, it's light is yellow (last bit in lights bitmask marks if the command is `step`)
+- If a road is marked as good to go, but the current command is not `step`, its light is yellow (the last bit in the lights bitmask indicates whether the command is `step`).
+- Thanks to this scoring-based selection, roads that experience long waiting times are guaranteed to eventually receive green light — preventing starvation.
+- Diagonal traffic movements (e.g., north → east and south → west) are not considered to be in conflict. The simulation assumes that the intersection platform is sufficiently large to accommodate all vehicles in such scenarios, however it can be changed if needed, because it is controlled by a simple logic function
+
 
 ---
 
@@ -131,7 +134,7 @@ Or manually:
 ./bin/simulation input.json output.json
 ```
 
-The `-s` flag is used to suppress Makefile command output, resulting in a cleaner terminal view.
+The `-s` flag is used to suppress makefile command output, resulting in a cleaner terminal view.
 
 ---
 
@@ -182,11 +185,11 @@ The brute-force bitmask evaluation scales with the number of active queues (O(2^
 
 ---
 
-## Worth noting
+## Worth Noting
 
-- Entirety of project is easily portable to most embedded platforms, due to built-in mockups of most of the problematic embedded functions
-- Program is scalable to allow any number of roads, as long as they're specified in file `common.h`
-- Also all vehicles are able to turn on their roads to go back from where they came.
+- The entire project is easily portable to most embedded platforms, thanks to built-in mockups of otherwise problematic standard functions.
+- The program is scalable — it supports any number of roads, as long as they are listed in `common.h`.
+- Vehicles are allowed to turn back to the road they came from (e.g., north → north), enabling flexible routing.
 
 ---
 
