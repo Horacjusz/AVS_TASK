@@ -26,7 +26,8 @@ This project simulates an intelligent traffic light control system for an inters
 - Light states are updated **immediately after any command**, including adding vehicles.
 - If a road is marked as good to go, but the current command is not `step`, its light is yellow (the last bit in the lights bitmask indicates whether the command is `step`).
 - Thanks to this scoring-based selection, roads that experience long waiting times are guaranteed to eventually receive green light — preventing starvation.
-- Diagonal traffic movements (e.g., north → east and south → west) are not considered to be in conflict. The simulation assumes that the intersection platform is sufficiently large to accommodate all vehicles in such scenarios, however it can be changed if needed, because it is controlled by a simple logic function
+- Diagonal traffic movements (e.g., north → east and south → west) are not considered to be in conflict. The simulation assumes that the intersection platform is sufficiently large to accommodate all vehicles in such scenarios, however it can be changed if needed, because it is controlled by a simple logic function.
+- Vehicles are allowed to turn back to the road they came from (e.g., north → north), enabling flexible routing.
 
 
 ---
@@ -189,7 +190,7 @@ The brute-force bitmask evaluation scales with the number of active queues (O(2^
 
 - The entire project is easily portable to most embedded platforms, thanks to built-in mockups of otherwise problematic standard functions.
 - The program is scalable — it supports any number of roads, as long as they are listed in `common.h`.
-- Vehicles are allowed to turn back to the road they came from (e.g., north → north), enabling flexible routing.
+- Thanks to its simplicity and modular structure, the application is easy to extend with additional features.
 
 ---
 
