@@ -11,9 +11,9 @@
 
 void test_direction_val() {
     current_test_success = direction_val("north") == 0 &&
-                           direction_val("east") == 2 &&
-                           direction_val("south") == 4 &&
-                           direction_val("west") == 6 &&
+                           direction_val("east") == 1 &&
+                           direction_val("south") == 2 &&
+                           direction_val("west") == 3 &&
                            direction_val("invalid") == -1;
 }
 
@@ -39,7 +39,6 @@ void test_are_colliding_true() {
 
 void test_step_basic() {
     Queue *main_queue = create_queue("main", TYPE_QUEUE);
-    Queue *log_queue = create_queue("log", TYPE_QUEUE);
 
     Queue *north = create_queue("north", TYPE_QUEUE);
     Queue *south = create_queue("south", TYPE_QUEUE);
@@ -50,12 +49,9 @@ void test_step_basic() {
     enqueue(main_queue, north);
     enqueue(main_queue, south);
 
-    step(main_queue, log_queue);
+    int mask = compute_best_mask(main_queue);
 
-    Queue *step_log = (Queue *) dequeue(log_queue);
-    current_test_success = step_log->length == 2;
+    current_test_success = mask == 5;
 
     free_queue_deep(main_queue);
-    free_queue_deep(step_log);
-    free_queue_deep(log_queue);
 }

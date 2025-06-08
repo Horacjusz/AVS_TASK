@@ -1,45 +1,39 @@
+// src/step.c
 #include "../include/step.h"
 #include "../include/queue.h"
 #include "../include/vehicle.h"
 #include "../include/common.h"
-#include <stdio.h>
-#include <stdbool.h>
 #include <string.h>
+#include <stdbool.h>
 
-// Converts direction name (e.g., "north") to numerical value for collision detection
+// Converts direction to numeric code
 int direction_val(const char *direction) {
     for (int i = 0; i < DIRECTIONS_SIZE; i++) {
         if (strcmp(direction, directions[i]) == 0) {
-            return i * 2;
+            return i;
         }
     }
     return -1;
 }
 
-// Determines whether two vehicle paths (start→end) intersect/conflict
-bool are_colliding(Queue *q1, Queue *q2) { 
-    int start1 = direction_val(q1->id);
-    int end1 = direction_val(((Vehicle *)(q1->head->data))->target_road);
-    int start2 = direction_val(q2->id);
-    int end2 = direction_val(((Vehicle *)(q2->head->data))->target_road);
+// Returns 1 if two vehicle paths would collide
+bool are_colliding(Queue *q1, Queue *q2) {
+    int start1 = 2*direction_val(q1->id);
+    int end1 = 2*direction_val(((Vehicle *)(q1->head->data))->target_road);
+    int start2 = 2*direction_val(q2->id);
+    int end2 = 2*direction_val(((Vehicle *)(q2->head->data))->target_road);
 
     end1++;
     end2++;
 
-    // Detects conflicting paths using spatial overlap and ordering
     return (start1 == start2 || end1 == end2 ||
-           ((min(start1, end1) < min(start2, end2)) && (min(start2, end2) < max(start1, end1)) && (max(start1, end1) < max(start2, end2))) ||
-           ((min(start2, end2) < min(start1, end1)) && (min(start1, end1) < max(start2, end2)) && (max(start2, end2) < max(start1, end1))));
-
+            ((min(start1, end1) < min(start2, end2)) && (min(start2, end2) < max(start1, end1)) && (max(start1, end1) < max(start2, end2))) ||
+            ((min(start2, end2) < min(start1, end1)) && (min(start1, end1) < max(start2, end2)) && (max(start2, end2) < max(start1, end1))));
 }
 
-// Executes one simulation step, choosing a conflict-free subset of queues to release vehicles
-void step(Queue *main_queue, Queue *log_queue) {
-    if (!main_queue || !log_queue) return;
-
-    // Logs vehicles that left in this step
-    Queue *left = create_queue("left", TYPE_QUEUE);
-    enqueue(log_queue, left);
+// Returns bitmask for green lights (each bit = 1 means queue can move)
+int compute_best_mask(Queue *main_queue) {
+    if (!main_queue) return 0;
 
     Queue *ready_queues[128];
     int ready_count = 0;
@@ -92,12 +86,16 @@ void step(Queue *main_queue, Queue *log_queue) {
         }
     }
     
-    // Dequeues the front vehicle from each selected queue
+    int new_mask = 0;
     for (int i = 0; i < ready_count; ++i) {
         if (best_mask & (1 << i)) {
-            void *v = dequeue(ready_queues[i]);
-            enqueue(left, v);
-            ready_queues[i]->counter = 0;
+            // Pobieramy ID kierunku np. "north"
+            const char *id = ready_queues[i]->id;
+            int j = direction_val(id);
+            // Szukamy pozycji w globalnym directions[]
+            new_mask |= (1 << j);
         }
     }
+
+    return new_mask;
 }

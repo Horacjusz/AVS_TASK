@@ -35,6 +35,14 @@ embedded: $(filter-out $(EMBEDDED_OBJ), $(OBJ)) $(EMBEDDED_OBJ)
 	@mkdir -p $(BINDIR)
 	$(CC) $(CFLAGS) -o $(TARGET) $^
 
+debug-run: clean
+	@if [ "$(word 2,$(MAKECMDGOALS))" = "" ] || [ "$(word 3,$(MAKECMDGOALS))" = "" ]; then \
+		echo "Usage: make debug-run input.json output.json"; \
+		exit 1; \
+	fi && \
+	$(MAKE) CFLAGS="$(CFLAGS) -DDEBUG" all --no-print-directory && \
+	./$(TARGET) $(word 2,$(MAKECMDGOALS)) $(word 3,$(MAKECMDGOALS))
+	$(MAKE) clean
 
 run:
 	@if [ "$(word 2,$(MAKECMDGOALS))" = "" ] || [ "$(word 3,$(MAKECMDGOALS))" = "" ]; then \
@@ -71,7 +79,8 @@ clean-test:
 clean: clean-test
 	rm -rf $(BINDIR)
 
-.PHONY: all clean clean-test embedded run run-embedded test
+.PHONY: all clean clean-test embedded run run-embedded test debug-run
+
 
 %::
 	@:
